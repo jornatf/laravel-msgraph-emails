@@ -1,6 +1,6 @@
 <?php
 
-namespace Jornatf\LaravelMsgraphMailer\Providers;
+namespace Jornatf\MsgraphMailer\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
