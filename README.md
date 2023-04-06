@@ -1,6 +1,6 @@
 # Laravel MsGraph Mailer 📨
 
-![](https://img.shields.io/github/v/release/jornatf/laravel-msgraph-mailer?style=flat-square) ![](https://img.shields.io/github/license/jornatf/laravel-msgraph-mailer?style=flat-square)
+![](https://img.shields.io/github/v/tag/jornatf/laravel-msgraph-mailer?style=flat-square) ![](https://img.shields.io/github/license/jornatf/laravel-msgraph-mailer?style=flat-square)
 
 A Laravel Package to send emails with [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/use-the-api).
 
