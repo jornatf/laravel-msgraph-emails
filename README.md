@@ -1,15 +1,15 @@
-# Laravel MsGraph Mailer 📨
+# MsGraph Mailer 📨
 
-![](https://img.shields.io/github/v/tag/jornatf/laravel-msgraph-mailer?style=flat-square) ![](https://img.shields.io/github/license/jornatf/laravel-msgraph-mailer?style=flat-square)
+![](https://img.shields.io/github/v/tag/jornatf/msgraph-mailer?style=flat-square) ![](https://img.shields.io/github/license/jornatf/msgraph-mailer?style=flat-square)
 
 A Laravel Package to send emails with [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/use-the-api).
 
 ## Installation
 
-Require the `jornatf/laravel-msgraph-mailer` package in your `composer.json` and update your dependencies:
+Require the `jornatf/msgraph-mailer` package in your `composer.json` and update your dependencies:
 
 ```
-composer require jornatf/laravel-msgraph-mailer
+composer require jornatf/msgraph-mailer
 ```
 
 After, add this line in `config/app.php` file:

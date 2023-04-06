@@ -1,5 +1,5 @@
 {
-	"name": "jornatf/laravel-msgraph-mailer",
+	"name": "jornatf/msgraph-mailer",
 	"description": "A Laravel Package to send emails with Microsoft Graph API.",
 	"keywords": [
 		"laravel",
