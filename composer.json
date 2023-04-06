@@ -1,0 +1,28 @@
+{
+	"name": "jornatf/laravel-msgraph-mailer",
+	"description": "A Laravel Package to send emails with Microsoft Graph API.",
+	"keywords": [
+		"laravel",
+		"api",
+		"microsoft graph api",
+		"microsoft",
+		"email",
+		"send mail",
+		"mailer"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Jordan Nataf",
+			"email": "jordan.nataf13@gmail.com"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"Jornatf\\Msgraph\\": "src/"
+		}
+	},
+	"require": {
+		"guzzlehttp/guzzle": "^7.5.0"
+	}
+}
