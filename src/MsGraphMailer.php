@@ -12,7 +12,7 @@ class MsGraph
      *
      * @var string
      */
-    protected $apiEndpoint = 'https://graph.miscrosoft.com/v1.0';
+    protected $apiEndpoint = 'https://graph.microsoft.com/v1.0';
 
     /**
      * Authentication token.
@@ -147,7 +147,7 @@ class MsGraph
     {
         $bodyDatas = http_build_query([
             'client_id' => $this->client_id,
-            'scope' => 'https://graph.miscrosoft.com/.default',
+            'scope' => 'https://graph.microsoft.com/.default',
             'client_secret' => $this->secret_id,
             'grant_type' => 'client_credentials',
         ]);
