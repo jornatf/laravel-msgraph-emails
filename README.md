@@ -34,14 +34,18 @@ MSGRAPH_SECRET_ID={secret_id}
 MSGRAPH_TENANT_ID={tenant_id}
 ```
 
+**Note: you must have the required access in your user Microsoft Graph account in order to be able to send emails.**
+
 ### Send a simple email:
 
 You can send to one or many recipients.
 
-If recipient one have no name, you've just type his address or else separate name and address by ":".
+If recipient one have no name, you've just type his address or else separate name and address by ':'.
+
+**Note: don't forget replace 'mailbox@example.com' by your Microsoft Graph mailbox.**
 
 ```php
-$email = MsGraphMailer::mail()
+$email = MsGraphMailer::mail('mailbox@example.com')
     ->to(['John Doe:john.doe@example.com', 'other@example.com', ...$otherRecipients])
     ->subject('A simple email')
     ->body('<h1>Send a simple email to one recipient.</h1>')
@@ -51,7 +55,7 @@ $email = MsGraphMailer::mail()
 You can put `Cc` and `Bcc` recipients like `To` recipients:
 
 ```php
-$email = MsGraphMailer::mail()
+$email = MsGraphMailer::mail('mailbox@example.com')
     ->to($toRecipients)
     ->cc($ccRecipients)
     ->bcc($bccRecipients)
@@ -65,7 +69,7 @@ $email = MsGraphMailer::mail()
 If you want send one or many attachments proceed like below:
 
 ```php
-$email = MsGraphMailer::mail()
+$email = MsGraphMailer::mail('mailbox@example.com')
     ->to(['John Doe:john.doe@example.com'])
     ->subject('A simple email')
     ->body('<h1>Send a simple email to one recipient.</h1>')
@@ -82,13 +86,13 @@ $email = MsGraphMailer::mail()
 
 ## Methods
 
-| Method                            | Description                                        | Required |
-| --------------------------------- | -------------------------------------------------- | -------- |
-| `mail()`                          | Instantiate class                                  | ✅       |
-| `to(array $toRecipients)`         | Add recipient **_To_**                             | ✅       |
-| `cc(array $ccRecipients)`         | Add recipient **_Cc_**                             | ❌       |
-| `cc(array $bccRecipients)`        | Add recipient **_Bcc_**                            | ❌       |
-| `subject(string $subject)`        | Add mail subject                                   | ✅       |
-| `body(string $content)`           | Add mail body (plain text or HTML format accepted) | ✅       |
-| `attachments(array $attachments)` | Add attachments                                    | ❌       |
-| `send()`                          | Send mail                                          | ✅       |
+| Method                            | Description                                         | Required |
+| --------------------------------- | --------------------------------------------------- | -------- |
+| `mail(string $mailbox)`           | Instantiate class with your Microsoft Graph mailbox | ✅       |
+| `to(array $toRecipients)`         | Add recipient **_To_**                              | ✅       |
+| `cc(array $ccRecipients)`         | Add recipient **_Cc_**                              | ❌       |
+| `cc(array $bccRecipients)`        | Add recipient **_Bcc_**                             | ❌       |
+| `subject(string $subject)`        | Add mail subject                                    | ✅       |
+| `body(string $content)`           | Add mail body (plain text or HTML format accepted)  | ✅       |
+| `attachments(array $attachments)` | Add attachments                                     | ❌       |
+| `send()`                          | Send mail                                           | ✅       |

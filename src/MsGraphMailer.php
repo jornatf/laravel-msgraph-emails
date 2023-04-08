@@ -31,6 +31,13 @@ class MsGraph
     ];
 
     /**
+     * User mailbox.
+     * 
+     * @var string
+     */
+    private $mailbox;
+
+    /**
      * Auth client_id.
      *
      * @var string
@@ -138,29 +145,38 @@ class MsGraph
      */
     protected function getToken()
     {
-        $requestDatas = [
+        $bodyDatas = http_build_query([
             'client_id' => $this->client_id,
             'scope' => 'https://graph.miscrosoft.com/.default',
             'client_secret' => $this->secret_id,
             'grant_type' => 'client_credentials',
-        ];
+        ]);
 
-        $response = Http::post("https://login.microsoftonline.com/{$this->tenant_id}/oauth2/v2.0/token", $requestDatas)->json();
+        $response = Http::withBody($bodyDatas)
+            ->withUrlParameters(['tenant_id' => $this->tenant_id])
+            ->post('https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token')->json();
+        
+        if ($response && $response['error']) {
+            throw new Exception($response['error_description'] ?? 'No response returned.');
+        }
 
-        if (! $response || ! $response->access_token) {
+        if (! $response || ! $response['access_token']) {
             throw new Exception('No token defined.');
         }
 
-        return $response->access_token;
+        return $response['access_token'];
     }
 
     /**
      * Returns the instance of the class.
      *
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @param  string  $mailbox
+     * @return \Jornatf\MsGraphMailer
      */
-    public static function mail()
+    public static function mail(string $mailbox)
     {
+        $this->mailbox = $mailbox;
+
         return new MsGraph();
     }
 
@@ -168,7 +184,7 @@ class MsGraph
      * Main recipients <To>.
      *
      * @param  array  $recipients
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
     public function to(array $recipients)
     {
@@ -181,7 +197,7 @@ class MsGraph
      * Recipients <Cc>.
      *
      * @param  array  $recipients
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
     public function cc(array $recipients)
     {
@@ -194,7 +210,7 @@ class MsGraph
      * Recipients <Bcc>.
      *
      * @param  array  $recipients
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
     public function bcc(array $recipients)
     {
@@ -207,7 +223,7 @@ class MsGraph
      * Subject.
      *
      * @param  string  $subject
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
     public function subject(string $subject)
     {
@@ -220,7 +236,7 @@ class MsGraph
      * Body.
      *
      * @param  string  $body
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
     public function body(string $body)
     {
@@ -233,7 +249,7 @@ class MsGraph
      * Attachments.
      *
      * @param  array  $attachments
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
     public function attachments(array $attachments)
     {
@@ -242,7 +258,7 @@ class MsGraph
                 '@odata.type' => '#microsoft.graph.fileAttachement',
                 'name' => $attachment['name'],
                 'contentType' => $attachment['contentType'],
-                'contentBytes' => $attachment['content'],
+                'contentBytes' => base64_encode($attachment['content']),
             ];
         }
     }
@@ -250,21 +266,23 @@ class MsGraph
     /**
      * Sends email after validate required properties.
      *
-     * @return \Jornatf\LaravelMsgraphEmails
+     * @return \Jornatf\MsGraphMailer
      */
-    public function send()
+    public function send(string $mailbox)
     {
-        if (! $this->to) {
-            throw new Exception('[to] property is required.');
-        }
-
-        if (! $this->subject || ! $this->body) {
-            throw new Exception('[subject] and [body] properties are required.');
+        foreach (['to', 'subject', 'body'] as $property) {
+            if (! $this->{$property}) {
+                throw new Exception("[$property] property is required.");
+            }
         }
 
         $this->response = Http::withToken($this->accessToken)
             ->withHeaders($this->headers)
-            ->post("{$this->apiEndpoint}/me/sendMail", $this->getEmailDatas())
+            ->withUrlParameters([
+                'endpoint' => $this->apiEndpoint,
+                'mailbox' => $mailbox,
+            ])
+            ->post('{+endpoint}/users/{mailbox}/sendMail', $this->getEmailDatas())
             ->json();
 
         return $this;
@@ -311,16 +329,10 @@ class MsGraph
             'toRecipients' => $this->toRecipients
         ];
 
-        if ($this->ccRecipients) {
-            $datas['ccRecipients'] = $this->ccRecipients;
-        }
-
-        if ($this->bccRecipients) {
-            $datas['bccRecipients'] = $this->bccRecipients;
-        }
-
-        if ($this->attachments) {
-            $datas['attachments'] = $this->attachments;
+        foreach (['ccRecipients', 'bccRecipients', 'attachments'] as $key) {
+            if ($this->{$key}) {
+                $datas['key'] = $this->{$key};
+            }
         }
 
         return $datas;
