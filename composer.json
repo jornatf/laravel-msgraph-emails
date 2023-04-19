@@ -11,19 +11,20 @@
 		"mailer"
 	],
 	"license": "MIT",
-	"authors": [
-		{
-			"name": "Jordan Nataf",
-			"email": "jordan.nataf13@gmail.com"
-		}
-	],
 	"autoload": {
 		"psr-4": {
-			"Jornatf\\Msgraph\\": "src/"
+			"Jornatf\\MsGraphMailer\\": "src/"
 		}
 	},
 	"require": {
 		"php": ">= 7.4",
 		"guzzlehttp/guzzle": "^7.5.0"
+	},
+	"extra": {
+		"laravel": {
+			"providers": [
+				"Jornatf\\MsGraphMailer\\Providers\\MsGraphMailerProvider"
+			]
+		}
 	}
 }
