@@ -15,7 +15,7 @@ class MsGraphMailer
 
     private string $mailbox;
 
-    private array $response;
+    private mixed $response;
 
     private string $subject;
 
@@ -37,7 +37,7 @@ class MsGraphMailer
      */
     protected function getEnv(string $key)
     {
-        if (! env($key) || empty(env($key))) {
+        if (! env($key) || env($key) == '') {
             throw new Exception("$key is not define in .env file.");
         }
 
@@ -165,6 +165,8 @@ class MsGraphMailer
             'contentType' => $attachment['contentType'],
             'contentBytes' => base64_encode($attachment['content']),
         ];
+
+        return $this;
     }
 
     /**
@@ -172,9 +174,9 @@ class MsGraphMailer
      *
      * @return MsGraphMailer
      */
-    public function send(string $mailbox)
+    public function send()
     {
-        foreach (['to', 'subject', 'body'] as $property) {
+        foreach (['toRecipients', 'subject', 'body'] as $property) {
             if (! $this->{$property}) {
                 throw new Exception("[$property] property is required.");
             }
@@ -184,7 +186,7 @@ class MsGraphMailer
             ->withHeaders($this->headers)
             ->withUrlParameters([
                 'endpoint' => $this->apiEndpoint,
-                'mailbox' => $mailbox,
+                'mailbox' => $this->mailbox,
             ])
             ->post('{+endpoint}/users/{mailbox}/sendMail', $this->getEmailDatas())
             ->json();
@@ -205,13 +207,14 @@ class MsGraphMailer
         foreach ($recipients as $recipient) {
             if (str_contains($recipient, ':')) {
                 [$name, $address] = explode(':', $recipient);
-            } else {
-                $address = $recipient;
+                $result[] = [
+                    'emailAddress' => ['name' => $name, 'address' => $address],
+                ];
+            } else {         
+                $result[] = [
+                    'emailAddress' => ['address' => $address],
+                ];
             }
-
-            $result[] = [
-                'emailAddress' => ['name' => $name, 'address' => $address],
-            ];
         }
 
         return $result;
