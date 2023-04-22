@@ -172,7 +172,7 @@ class MsGraphMailer
     /**
      * Sends email after validate required properties.
      *
-     * @return MsGraphMailer
+     * @return array
      */
     public function send()
     {
