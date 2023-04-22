@@ -198,7 +198,7 @@ class MsGraphMailer
             $this->response['message'] = $e->getMessage();
         }
 
-        return $this;
+        return $this->response;
     }
 
     /**
