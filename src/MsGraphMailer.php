@@ -1,127 +1,33 @@
 <?php
 
-namespace Jornatf\LaravelMsgraphMailer;
+namespace Jornatf\MsGraphMailer;
 
 use Exception;
 use Illuminate\Support\Facades\Http;
 
-class MsGraph
+class MsGraphMailer
 {
-    /**
-     * Base API Endpoints.
-     *
-     * @var string
-     */
-    protected $apiEndpoint = 'https://graph.microsoft.com/v1.0';
+    private string $apiEndpoint = 'https://graph.microsoft.com/v1.0';
 
-    /**
-     * Authentication token.
-     *
-     * @var string
-     */
-    protected $accessToken;
-
-    /**
-     * Default headers.
-     *
-     * @var array
-     */
-    protected $headers = [
+    private array $headers = [
         'Content-Type' => 'application/json',
     ];
 
-    /**
-     * User mailbox.
-     * 
-     * @var string
-     */
-    private $mailbox;
+    private string $mailbox;
 
-    /**
-     * Auth client_id.
-     *
-     * @var string
-     */
-    private $client_id;
+    private array $response;
 
-    /**
-     * Auth secret_id.
-     *
-     * @var string
-     */
-    private $secret_id;
+    private string $subject;
 
-    /**
-     * Auth tenant_id
-     *
-     * @var string
-     */
-    private $tenant_id;
+    private string $body;
 
-    /**
-     * Response to the email request sent.
-     *
-     * @var array
-     */
-    private $response;
+    private array $toRecipients = [];
 
-    /**
-     * Mail subject.
-     *
-     * @var string
-     */
-    private $subject;
+    private array $ccRecipients = [];
 
-    /**
-     * Mail body.
-     *
-     * @var string
-     */
-    private $body;
+    private array $bccRecipients = [];
 
-    /**
-     * Recipient <To> for sending mail.
-     *
-     * @var array
-     */
-    private $toRecipients;
-
-    /**
-     * Recipient <Cc> for sending mail.
-     *
-     * @var array
-     */
-    private $ccRecipients;
-
-    /**
-     * Recipient <Bcc> for sending mail.
-     *
-     * @var array
-     */
-    private $bccRecipients;
-
-    /**
-     * Attachments.
-     * 
-     * @var array
-     */
-    private $attachments;
-
-    /**
-     * Constructs class.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->client_id = $this->getEnv('MSGRAPH_CLIENT_ID');
-
-        $this->secret_id = $this->getEnv('MSGRAPH_SECRET_ID');
-
-        $this->tenant_id = $this->getEnv('MSGRAPH_TENANT_ID');
-
-        $this->accessToken = $this->getToken();
-    }
+    private array $attachments = [];
 
     /**
      * Get env var.
@@ -132,7 +38,7 @@ class MsGraph
     protected function getEnv(string $key)
     {
         if (! env($key) || empty(env($key))) {
-            throw new Exception("$key var is not define in .env file.");
+            throw new Exception("$key is not define in .env file.");
         }
 
         return env($key);
@@ -146,14 +52,14 @@ class MsGraph
     protected function getToken()
     {
         $bodyDatas = http_build_query([
-            'client_id' => $this->client_id,
+            'client_id' => $this->getEnv('MSGRAPH_CLIENT_ID'),
             'scope' => 'https://graph.microsoft.com/.default',
-            'client_secret' => $this->secret_id,
+            'client_secret' => $this->getEnv('MSGRAPH_SECRET_ID'),
             'grant_type' => 'client_credentials',
         ]);
 
         $response = Http::withBody($bodyDatas)
-            ->withUrlParameters(['tenant_id' => $this->tenant_id])
+            ->withUrlParameters(['tenant_id' => $this->getEnv('MSGRAPH_TENANT_ID')])
             ->post('https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token')->json();
         
         if ($response && $response['error']) {
@@ -171,20 +77,20 @@ class MsGraph
      * Returns the instance of the class.
      *
      * @param  string  $mailbox
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
-    public static function mail(string $mailbox)
+    public function mail(string $mailbox)
     {
         $this->mailbox = $mailbox;
 
-        return new MsGraph();
+        return $this;
     }
 
     /**
      * Main recipients <To>.
      *
      * @param  array  $recipients
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
     public function to(array $recipients)
     {
@@ -197,7 +103,7 @@ class MsGraph
      * Recipients <Cc>.
      *
      * @param  array  $recipients
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
     public function cc(array $recipients)
     {
@@ -210,7 +116,7 @@ class MsGraph
      * Recipients <Bcc>.
      *
      * @param  array  $recipients
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
     public function bcc(array $recipients)
     {
@@ -223,7 +129,7 @@ class MsGraph
      * Subject.
      *
      * @param  string  $subject
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
     public function subject(string $subject)
     {
@@ -236,7 +142,7 @@ class MsGraph
      * Body.
      *
      * @param  string  $body
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
     public function body(string $body)
     {
@@ -248,25 +154,23 @@ class MsGraph
     /**
      * Attachments.
      *
-     * @param  array  $attachments
-     * @return \Jornatf\MsGraphMailer
+     * @param  array  $attachment
+     * @return MsGraphMailer
      */
-    public function attachments(array $attachments)
+    public function addAttachment(array $attachment)
     {
-        foreach ($attachments as $attachment) {
-            $this->attachments[] = [
-                '@odata.type' => '#microsoft.graph.fileAttachement',
-                'name' => $attachment['name'],
-                'contentType' => $attachment['contentType'],
-                'contentBytes' => base64_encode($attachment['content']),
-            ];
-        }
+        $this->attachments[] = [
+            '@odata.type' => '#microsoft.graph.fileAttachement',
+            'name' => $attachment['name'],
+            'contentType' => $attachment['contentType'],
+            'contentBytes' => base64_encode($attachment['content']),
+        ];
     }
 
     /**
      * Sends email after validate required properties.
      *
-     * @return \Jornatf\MsGraphMailer
+     * @return MsGraphMailer
      */
     public function send(string $mailbox)
     {
@@ -276,7 +180,7 @@ class MsGraph
             }
         }
 
-        $this->response = Http::withToken($this->accessToken)
+        $this->response = Http::withToken($this->getToken())
             ->withHeaders($this->headers)
             ->withUrlParameters([
                 'endpoint' => $this->apiEndpoint,
@@ -335,6 +239,6 @@ class MsGraph
             }
         }
 
-        return $datas;
+        return ['message' => $datas];
     }
 }

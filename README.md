@@ -1,98 +1,108 @@
-# MsGraph Mailer 📨
+# Msgraph Mailer
 
-![](https://img.shields.io/github/v/tag/jornatf/msgraph-mailer?style=flat-square) ![](https://img.shields.io/github/license/jornatf/msgraph-mailer?style=flat-square)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/jornatf/msgraph-mailer.svg?style=flat-square)](https://packagist.org/packages/jornatf/msgraph-mailer)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/jornatf/msgraph-mailer/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/jornatf/msgraph-mailer/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/jornatf/msgraph-mailer/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/jornatf/msgraph-mailer/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/jornatf/msgraph-mailer.svg?style=flat-square)](https://packagist.org/packages/jornatf/msgraph-mailer)
 
-A Laravel Package to send emails with [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/use-the-api).
+**Msgraph Mailer** is a Laravel Package to send emails with [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/use-the-api).
 
 ## Installation
 
-Require the `jornatf/msgraph-mailer` package in your `composer.json` and update your dependencies:
+You can install the package via composer:
 
-```
+```bash
 composer require jornatf/msgraph-mailer
 ```
 
-After, add this line in `config/app.php` file:
+### Prerequisites
+
+Add your [Microsoft Graph](https://learn.microsoft.com/en-us/graph/overview) credentials in the `.env` file:
+
+```
+MSGRAPH_CLIENT_ID=your_client_id
+MSGRAPH_SECRET_ID=your_secret_id
+MSGRAPH_TENANT_ID=your_tenant_id
+```
+
+## Usage
+
+### With a simple example:
 
 ```php
-...
-'providers' => [
-    ...
-    Jornatf\Providers\MsGraphMailerProvider::class, // line to add
-],
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+
+class PostController extends Controller
+{
+    public function sendMail()
+    {
+        try {
+            $msgraph = MsGraphMailer::mail('your@mailbox.com')
+                ->to(['John Doe:john.doe@example.com', 'other@example.com', $otherRecipients])
+                ->subject('A simple email')
+                ->body('<h1>Send a simple email to one recipient.</h1>')
+                ->send();
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        return "Email sended!";
+    }
+}
 ```
 
-## Global Usage
-
-### Prerequisites:
-
-Before using this library you must have your credentials to access the Microsoft Graph API (_client_id_, _secret_id_ and _tenant_id_) and place these in your `.env` file:
-
-```
-MSGRAPH_CLIENT_ID={client_id}
-MSGRAPH_SECRET_ID={secret_id}
-MSGRAPH_TENANT_ID={tenant_id}
-```
-
-**Note: you must have the required access in your user Microsoft Graph account in order to be able to send emails.**
-
-### Send a simple email:
-
-You can send to one or many recipients.
-
-If recipient one have no name, you've just type his address or else separate name and address by ':'.
-
-**Note: don't forget replace 'mailbox@example.com' by your Microsoft Graph mailbox.**
+### Available methods:
 
 ```php
-$email = MsGraphMailer::mail('mailbox@example.com')
-    ->to(['John Doe:john.doe@example.com', 'other@example.com', ...$otherRecipients])
-    ->subject('A simple email')
-    ->body('<h1>Send a simple email to one recipient.</h1>')
-    ->send();
+<?php
+
+// First, instantiate response with your Msgraph mailbox (required):
+$msgraph = MsGraphMailer::mail(string $mailbox);
+
+// Add a main recipient(s), a subject and a content (required):
+$msgraph->to(array $toRecipient);
+$msgraph->subject(string $subject);
+$msgraph->content(string $contentHTML);
+
+// You can add Cc and/or bcc with the same way (optionally):
+$msgraph->cc(array $ccRecipient);
+$msgraph->bcc(array $bccRecipient);
+
+// Optionally, you can add one or many attachments:
+$msgraph->addAttachment(array $attachment = [
+    'name' => $filename,
+    'contentType' => $contentType,
+    'content' => $contentBytes
+]);
+// and repeat if you have many attachments.
+
+// Last, send your mail:
+$msgraph->send();
 ```
 
-You can put `Cc` and `Bcc` recipients like `To` recipients:
+## Testing
 
-```php
-$email = MsGraphMailer::mail('mailbox@example.com')
-    ->to($toRecipients)
-    ->cc($ccRecipients)
-    ->bcc($bccRecipients)
-    ->subject('A simple email')
-    ->body('<h1>Send a simple email to one recipient.</h1>')
-    ->send();
+```bash
+composer test
 ```
 
-### Attach file(s)
+## Changelog
 
-If you want send one or many attachments proceed like below:
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
-```php
-$email = MsGraphMailer::mail('mailbox@example.com')
-    ->to(['John Doe:john.doe@example.com'])
-    ->subject('A simple email')
-    ->body('<h1>Send a simple email to one recipient.</h1>')
-    ->attachments([
-        [
-            'name' => $filename,
-            'contentType' => $contentType,  // e.g: "application/pdf"
-            'content' => $contentBytes      // encoded file
-        ],
-        ...$otherAttachments
-    ])
-    ->send();
-```
+## Contributing
 
-## Methods
+Feel free to contribute to this project to improve with new features or fix bugs 👍
 
-| Method                            | Description                                         | Required |
-| --------------------------------- | --------------------------------------------------- | -------- |
-| `mail(string $mailbox)`           | Instantiate class with your Microsoft Graph mailbox | ✅       |
-| `to(array $toRecipients)`         | Add recipient **_To_**                              | ✅       |
-| `cc(array $ccRecipients)`         | Add recipient **_Cc_**                              | ❌       |
-| `cc(array $bccRecipients)`        | Add recipient **_Bcc_**                             | ❌       |
-| `subject(string $subject)`        | Add mail subject                                    | ✅       |
-| `body(string $content)`           | Add mail body (plain text or HTML format accepted)  | ✅       |
-| `attachments(array $attachments)` | Add attachments                                     | ❌       |
-| `send()`                          | Send mail                                           | ✅       |
+## Credits
+
+-   [Jordan](https://github.com/jornatf)
+-   [All Contributors](../../contributors)
+
+## License
+
+The MIT License (MIT). Please see [License File](LICENSE.md) for more information.

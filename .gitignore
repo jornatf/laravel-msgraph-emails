@@ -1,3 +1,11 @@
-/vendor
+.idea
+.phpunit.cache
+build
 composer.lock
-.DS_Store
+coverage
+docs
+phpunit.xml
+phpstan.neon
+testbench.yaml
+vendor
+node_modules
