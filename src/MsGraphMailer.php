@@ -15,7 +15,7 @@ class MsGraphMailer
 
     private string $mailbox;
 
-    private mixed $response;
+    private array $response;
 
     private string $subject;
 
@@ -182,14 +182,21 @@ class MsGraphMailer
             }
         }
 
-        $this->response = Http::withToken($this->getToken())
-            ->withHeaders($this->headers)
-            ->withUrlParameters([
-                'endpoint' => $this->apiEndpoint,
-                'mailbox' => $this->mailbox,
-            ])
-            ->post('{+endpoint}/users/{mailbox}/sendMail', $this->getEmailDatas())
-            ->json();
+        try {
+            $http = Http::withToken($this->getToken())
+                ->withHeaders($this->headers)
+                ->withUrlParameters([
+                    'endpoint' => $this->apiEndpoint,
+                    'mailbox' => $this->mailbox,
+                ])
+                ->post('{+endpoint}/users/{mailbox}/sendMail', $this->getEmailDatas())
+                ->json();
+
+            $this->response['success'] = true;
+        } catch (Exception $e) {
+            $this->response['success'] = false;
+            $this->response['message'] = $e->getMessage();
+        }
 
         return $this;
     }
@@ -212,7 +219,7 @@ class MsGraphMailer
                 ];
             } else {         
                 $result[] = [
-                    'emailAddress' => ['address' => $address],
+                    'emailAddress' => ['address' => $recipient],
                 ];
             }
         }
