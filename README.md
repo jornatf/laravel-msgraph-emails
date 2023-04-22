@@ -5,17 +5,19 @@
 [![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/jornatf/msgraph-mailer/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/jornatf/msgraph-mailer/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
 [![Total Downloads](https://img.shields.io/packagist/dt/jornatf/msgraph-mailer.svg?style=flat-square)](https://packagist.org/packages/jornatf/msgraph-mailer)
 
-**Msgraph Mailer** is a Laravel Package to send emails with [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/use-the-api).
+A Laravel Package to send emails with [Microsoft Graph API](https://learn.microsoft.com/en-us/graph/use-the-api).
+
+> #### If you like this package you can [Buy me a Coffee](https://www.buymeacoffee.com/jornatf) ☕️
 
 ## Installation
 
-You can install the package via composer:
+### Via composer:
 
 ```bash
 composer require jornatf/msgraph-mailer
 ```
 
-### Prerequisites
+### Prerequisites:
 
 Add your [Microsoft Graph](https://learn.microsoft.com/en-us/graph/overview) credentials in the `.env` file:
 
@@ -27,7 +29,9 @@ MSGRAPH_TENANT_ID=your_tenant_id
 
 ## Usage
 
-### With a simple example:
+### Example:
+
+> This example shows you how to use the basic methods required to send an email.
 
 ```php
 <?php
@@ -92,11 +96,11 @@ composer test
 
 ## Changelog
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+> Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Contributing
 
-Feel free to contribute to this project to improve with new features or fix bugs 👍
+> Feel free to contribute to this project to improve with new features or fix bugs 👍
 
 ## Credits
 
@@ -105,4 +109,6 @@ Feel free to contribute to this project to improve with new features or fix bugs
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT).
+
+> Please see [License File](LICENSE.md) for more information.
